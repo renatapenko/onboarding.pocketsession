@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Sessão Pocket</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#F8F5F0;color:#261820;font-family:'DM Sans',sans-serif;min-height:100vh}
+.stripe{height:4px;background:linear-gradient(90deg,#5C3444,#B5697A,#EDD0D5);position:fixed;top:0;left:0;right:0;z-index:100}
+.topbar{background:#F8F5F0;border-bottom:1px solid #DDD5C8;padding:14px 20px 12px;position:fixed;top:4px;left:0;right:0;z-index:99}
+.topbar-inner{max-width:540px;margin:0 auto}
+.topbar-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
+.brand{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;color:#5C3444}
+.counter{font-size:11px;color:#A89098}
+.pbar-bg{height:2px;background:#EDE8E0;border-radius:10px;overflow:hidden}
+.pbar-fill{height:100%;background:linear-gradient(90deg,#5C3444,#B5697A);border-radius:10px;transition:width .5s ease}
+#app{max-width:540px;margin:0 auto;padding:32px 20px 64px}
+.step{display:flex;flex-direction:column;gap:22px}
+.eyebrow{font-size:10px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;margin-bottom:10px;font-family:'DM Sans',sans-serif}
+.er{color:#B5697A}.eg{color:#5A8A5A}.es{color:#7A9480}
+h1{font-family:'Cormorant Garamond',serif;font-size:clamp(30px,8vw,44px);font-style:italic;color:#261820;line-height:1.2;font-weight:400}
+h2{font-family:'Cormorant Garamond',serif;font-size:clamp(22px,6vw,32px);color:#261820;line-height:1.3;font-weight:400}
+h3{font-family:'Cormorant Garamond',serif;font-size:clamp(18px,4vw,24px);color:#261820;line-height:1.3;font-weight:400}
+.lead{font-size:15px;color:#7A6068;line-height:1.75;font-weight:300}
+.card{background:#fff;border:1.5px solid #DDD5C8;border-radius:14px;padding:18px 20px}
+.insight-card{background:linear-gradient(135deg,#FDF5F7,#F9F1F4);border:1px solid #EDD0D5;border-radius:12px;padding:16px 18px;display:flex;gap:12px;align-items:flex-start}
+.insight-text{font-family:'Cormorant Garamond',serif;font-size:14px;color:#7A6068;line-height:1.75;font-style:italic}
+.aviso-i{background:#FFF8F5;border:1px solid #EDD0C8;border-radius:10px;padding:13px 16px}
+.aviso-f{background:#F5FAF5;border:1px solid #C0D8C0;border-radius:10px;padding:13px 16px}
+.aviso-row{display:flex;gap:10px}
+.aviso-text{font-size:12px;color:#7A6068;line-height:1.7}
+.divider{display:flex;align-items:center;gap:12px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#A89098;font-family:'DM Sans',sans-serif}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:#DDD5C8}
+.btn-p{width:100%;background:linear-gradient(135deg,#5C3444,#B5697A);color:white;border:none;border-radius:100px;padding:17px;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;-webkit-tap-highlight-color:transparent;margin-top:4px}
+.btn-g{width:100%;background:transparent;border:1.5px solid #DDD5C8;color:#7A6068;border-radius:100px;padding:16px;font-size:15px;cursor:pointer;font-family:'DM Sans',sans-serif;-webkit-tap-highlight-color:transparent}
+.btn-wa{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;background:#25D366;color:white;border-radius:100px;padding:15px;font-size:15px;font-weight:600;text-decoration:none;font-family:'DM Sans',sans-serif}
+.err-msg{font-size:13px;color:#A03020;display:none;font-family:'DM Sans',sans-serif}
+.opt{background:#fff;border:1.5px solid #DDD5C8;border-radius:14px;padding:15px 18px;cursor:pointer;display:flex;align-items:center;gap:14px;user-select:none;-webkit-tap-highlight-color:transparent;transition:border-color .18s,background .18s;margin-bottom:8px}
+.opt:last-child{margin-bottom:0}
+.opt.sel{background:#FDF0F3;border-color:#B5697A;box-shadow:0 2px 12px rgba(181,105,122,.15)}
+.opt-icon{font-size:22px;flex-shrink:0}
+.opt-body{flex:1}
+.opt-title{font-size:15px;font-weight:600;color:#261820}
+.opt-sub{font-size:13px;color:#A89098;font-weight:300;margin-top:2px}
+.chk{width:20px;height:20px;border-radius:50%;flex-shrink:0;border:1.5px solid #DDD5C8;background:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;color:white;transition:all .18s}
+.opt.sel .chk{background:#B5697A;border-color:#B5697A}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.gc{background:#fff;border:1.5px solid #DDD5C8;border-radius:12px;padding:14px;cursor:pointer;display:flex;flex-direction:column;gap:8px;user-select:none;-webkit-tap-highlight-color:transparent;transition:all .18s}
+.gc.sel{background:#FDF0F3;border-color:#B5697A}
+.gc-top{display:flex;justify-content:space-between;align-items:flex-start}
+.gc-icon{font-size:22px}
+.gchk{width:17px;height:17px;border-radius:50%;border:1.5px solid #DDD5C8;background:#fff;display:flex;align-items:center;justify-content:center;font-size:9px;color:white}
+.gc.sel .gchk{background:#B5697A;border-color:#B5697A}
+.gc-title{font-size:13px;font-weight:600;color:#261820}
+.field{width:100%;background:#fff;border:1.5px solid #DDD5C8;border-radius:12px;padding:15px 18px;font-size:16px;color:#261820;font-family:'DM Sans',sans-serif;font-weight:300;outline:none;-webkit-appearance:none}
+textarea.field{resize:none;line-height:1.65}
+.char-hint{font-size:11px;color:#A89098;text-align:right;margin-top:5px;font-family:'DM Sans',sans-serif}
+.escala-grid{display:grid;grid-template-columns:repeat(11,1fr);gap:4px}
+.en{height:44px;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;background:#fff;border:1.5px solid #DDD5C8;color:#261820;font-size:14px;font-weight:400;transition:all .15s;-webkit-tap-highlight-color:transparent;user-select:none}
+.en.sel{background:#B5697A;border-color:#B5697A;color:white;font-weight:700}
+.en.fil{background:#F5DCE2;border-color:#DDD5C8}
+.escala-labels{display:flex;justify-content:space-between;font-size:11px;color:#A89098;font-family:'DM Sans',sans-serif;margin-top:6px}
+.escala-msg{font-family:'Cormorant Garamond',serif;font-size:14px;color:#B5697A;font-style:italic;text-align:center;margin-top:6px}
+.pillar-card{background:#fff;border:1.5px solid #DDD5C8;border-radius:14px;padding:14px 18px;display:flex;align-items:center;gap:14px;margin-bottom:8px}
+.pillar-num{width:33px;height:33px;border-radius:50%;background:linear-gradient(135deg,#5C3444,#B5697A);display:flex;align-items:center;justify-content:center;color:white;font-size:10px;font-weight:700;font-family:'DM Sans',sans-serif;flex-shrink:0}
+.pillar-title{font-size:14px;font-weight:600;color:#261820;font-family:'DM Sans',sans-serif}
+.pillar-sub{font-size:12px;color:#A89098;margin-top:2px;font-family:'DM Sans',sans-serif}
+.hero-box{background:linear-gradient(135deg,#FDF5F7,#F9F1F4);border:1px solid #EDD0D5;border-radius:14px;padding:20px}
+.hero-box-title{font-size:12px;letter-spacing:.13em;text-transform:uppercase;color:#B5697A;font-weight:600;margin-bottom:14px;font-family:'DM Sans',sans-serif}
+.hero-row{display:flex;gap:14px;align-items:flex-start;margin-bottom:14px}
+.hero-row:last-child{margin-bottom:0}
+.hero-row-title{font-size:14px;font-weight:600;color:#261820;font-family:'DM Sans',sans-serif;margin-bottom:3px}
+.hero-row-sub{font-size:13px;color:#7A6068;font-family:'DM Sans',sans-serif;line-height:1.6}
+.linen-note{background:#EDE8E0;border-radius:10px;padding:11px 14px;margin-top:12px}
+.linen-note-text{font-size:12px;color:#7A6068;font-family:'DM Sans',sans-serif;line-height:1.65}
+.onde-box{background:#FDF5F7;border:1.5px solid #EDD0D5;border-radius:12px;padding:14px 16px}
+.onde-label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#B5697A;font-weight:600;margin-bottom:7px;font-family:'DM Sans',sans-serif}
+.onde-text{font-size:14px;color:#261820;font-family:'DM Sans',sans-serif;line-height:1.7}
+.frase-card{border-radius:14px;padding:18px;text-align:center}
+.frase-card.setup{background:#FDF0F3;border:1.5px solid #B5697A}
+.frase-card.normal{background:#fff;border:1.5px solid #DDD5C8}
+.frase-label{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#B5697A;font-weight:600;margin-bottom:10px;font-family:'DM Sans',sans-serif}
+.frase-text{font-family:'Cormorant Garamond',serif;font-size:clamp(15px,4vw,18px);color:#261820;line-height:1.75;font-style:italic}
+.timer-row{display:flex;align-items:center;gap:14px;background:#fff;border:1.5px solid #DDD5C8;border-radius:14px;padding:13px 16px}
+.timer-ring{position:relative;width:52px;height:52px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.timer-num{font-size:11px;font-weight:700;color:#B5697A;font-family:'DM Sans',sans-serif}
+.timer-label{font-size:13px;font-weight:600;color:#261820;font-family:'DM Sans',sans-serif;margin-bottom:3px}
+.timer-taps{font-size:12px;color:#A89098;font-family:'DM Sans',sans-serif}
+.progress-dots{display:flex;gap:5px;justify-content:center;flex-wrap:wrap}
+.dot-seg{height:5px;border-radius:10px;transition:all .35s;background:#DDD5C8}
+.dot-seg.active{width:22px!important;background:#B5697A}
+.dot-seg.done{background:#B5697A;opacity:.4}
+.diagram-wrap{background:#fff;border:1.5px solid #DDD5C8;border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:14px}
+.legend-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.leg-item{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:8px;transition:background .25s}
+.leg-item.active{background:#FDF0F3}
+.leg-item.done-item{background:#FBF8F8}
+.leg-num{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;font-family:'DM Sans',sans-serif;flex-shrink:0}
+.leg-name{font-size:11px;font-family:'DM Sans',sans-serif;line-height:1.3}
+.leg-arrow{font-size:9px;font-family:'DM Sans',sans-serif;margin-left:auto;white-space:nowrap}
+.hav-opt{background:#fff;border:1.5px solid #DDD5C8;border-radius:12px;padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:12px;user-select:none;-webkit-tap-highlight-color:transparent;transition:all .18s;margin-bottom:8px}
+.hav-opt:last-child{margin-bottom:0}
+.hav-opt.sel{background:#F0F5F0;border-color:#7A9480}
+.hav-opt-icon{font-size:20px}
+.hav-opt-label{font-size:15px;font-weight:600;color:#261820;font-family:'DM Sans',sans-serif;flex:1}
+.hav-chk{width:19px;height:19px;border-radius:50%;border:1.5px solid #DDD5C8;background:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;color:white}
+.hav-opt.sel .hav-chk{background:#7A9480;border-color:#7A9480}
+.anchor-box{background:#F0F5F0;border:1.5px solid #C0D8C0;border-radius:12px;padding:16px 18px}
+.anchor-label{font-size:12px;color:#4A7A5A;font-weight:600;margin-bottom:6px;font-family:'DM Sans',sans-serif}
+.anchor-text{font-family:'Cormorant Garamond',serif;font-size:15px;color:#261820;font-style:italic;line-height:1.7}
+.hav-timer-ring{position:relative;width:110px;height:110px;display:flex;align-items:center;justify-content:center;margin:0 auto}
+.hav-inner{display:flex;flex-direction:column;align-items:center;gap:2px}
+.hav-icon{font-size:26px}
+.hav-secs{font-size:12px;font-weight:700;color:#7A9480;font-family:'DM Sans',sans-serif}
+.hav-cue-card{background:#fff;border:1.5px solid #C0D8C0;border-radius:14px;padding:18px}
+.hav-cue-text{font-size:14px;color:#261820;font-family:'DM Sans',sans-serif;line-height:1.7;margin-bottom:14px}
+.hav-cue-label{font-size:12px;color:#7A9480;font-weight:600;margin-bottom:6px;font-family:'DM Sans',sans-serif}
+.hav-frase{font-family:'Cormorant Garamond',serif;font-size:clamp(14px,4vw,17px);color:#261820;font-style:italic;line-height:1.7}
+.delta-box{border-radius:14px;padding:20px;text-align:center}
+.delta-num{font-family:'Cormorant Garamond',serif;font-size:clamp(30px,7vw,44px);color:#3A6A3A;margin-bottom:8px}
+.delta-text{font-size:14px;color:#5A8A5A;font-family:'DM Sans',sans-serif;line-height:1.65}
+.final-box{background:#fff;border:1.5px solid #DDD5C8;border-radius:20px;padding:40px 24px;display:flex;flex-direction:column;align-items:center;gap:22px;text-align:center;box-shadow:0 4px 32px rgba(0,0,0,.05)}
+.final-icon{width:78px;height:78px;border-radius:50%;background:linear-gradient(135deg,#5C3444,#B5697A);display:flex;align-items:center;justify-content:center;font-size:34px;color:white;box-shadow:0 8px 32px rgba(92,52,68,.3)}
+.pill{background:#EDE8E0;border:1px solid #DDD5C8;border-radius:100px;padding:6px 14px;font-size:12px;color:#7A6068;font-family:'DM Sans',sans-serif}
+.pills{display:flex;flex-wrap:wrap;gap:7px;justify-content:center}
+.pill strong{color:#B5697A}
+.hint-small{font-size:12px;color:#A89098;font-family:'DM Sans',sans-serif;margin-top:6px}
+.delta-reg{background:#EDE8E0;border-radius:12px;padding:14px 18px;width:100%}
+.delta-reg-text{font-size:13px;color:#7A6068;font-family:'DM Sans',sans-serif;line-height:1.65}
+.wa-box{background:linear-gradient(135deg,#FDF5F7,#F9F1F4);border:1px solid #EDD0D5;border-radius:14px;padding:18px}
+.wa-title{font-size:13px;font-weight:600;color:#B5697A;font-family:'DM Sans',sans-serif;margin-bottom:6px}
+.wa-sub{font-size:13px;color:#7A6068;font-family:'DM Sans',sans-serif;line-height:1.65;margin-bottom:14px}
+.circle-icon{width:62px;height:62px;border-radius:50%;background:#EDE8E0;border:2px solid #DDD5C8;display:flex;align-items:center;justify-content:center;font-size:26px}
+@media(max-width:360px){.escala-grid{gap:2px}.en{font-size:12px}}
+</style>
+</head>
+<body>
+<div class="stripe"></div>
+<div class="topbar" id="topbar" style="display:none">
+  <div class="topbar-inner">
+    <div class="topbar-row">
+      <span class="brand">Sessão Pocket</span>
+      <span class="counter" id="counter"></span>
+    </div>
+    <div class="pbar-bg"><div class="pbar-fill" id="pbar" style="width:0%"></div></div>
+  </div>
+</div>
+<div id="app"></div>
+
+<script>
+const P = {
+  bg:'#F8F5F0',white:'#FFFFFF',linen:'#EDE8E0',border:'#DDD5C8',
+  rose:'#B5697A',plum:'#5C3444',sage:'#7A9480',
+  text:'#261820',muted:'#7A6068',light:'#A89098',blush:'#EDD0D5'
+};
+
+const INS_MOTIVO = {
+  rel:'Padrões relacionais têm raízes muito antes de sermos adultas. Nomear isso já é o início de algo.',
+  ans:'A ansiedade raramente é o problema central — ela é o aviso de que algo mais fundo está pedindo atenção.',
+  ident:'Perder-se de si mesma é um dos processos mais silenciosos que existem. Obrigada por trazer isso.',
+  pat:'Padrões que se repetem têm uma lógica emocional própria. Juntas, vamos entender essa linguagem.',
+  sol:'Às vezes a solidão não vem da ausência de pessoas — vem da ausência de conexão consigo mesma.',
+  aut:'A autossabotagem raramente é fraqueza — quase sempre é uma proteção muito antiga que perdeu o contexto.'
+};
+const INS_TEMPO = {
+  rec:'Algo recente ainda não teve tempo de ser processado. Faz sentido seu sistema ainda estar reagendo.',
+  meses:'Alguns meses são suficientes para um padrão começar a se instalar. Você chegou antes que se solidifique.',
+  ano:'Um ano é tempo suficiente para o padrão se tornar familiar. Vamos trabalhar com a profundidade que merece.',
+  anos:'Quando algo nos acompanha por anos, já se misturou à nossa identidade. A mudança é possível — e pede gentileza.'
+};
+
+const PONTOS = [
+  {id:'karate',nome:'Lado da mão',dur:20,setup:true,
+   onde:'O lado externo da mão — a faixa carnuda abaixo do dedo mínimo, como se fosse dar um golpe de caratê. Bata com os dedos da outra mão.',
+   frase:'Mesmo sentindo tudo isso, eu me aceito profunda e completamente.'},
+  {id:'head',nome:'Topo da cabeça',dur:14,
+   onde:'O ponto mais alto do crânio — bem no centro. Use as pontas dos dedos de uma ou das duas mãos.',
+   frase:'Eu reconheço esta emoção sem precisar lutar contra ela.'},
+  {id:'eyebrow',nome:'Início da sobrancelha',dur:14,
+   onde:'Na extremidade interna da sobrancelha — o ponto ossudo logo acima do canto interno do olho, pertinho do nariz.',
+   frase:'Meu corpo pode começar a relaxar agora.'},
+  {id:'side_eye',nome:'Lado do olho',dur:14,
+   onde:'No osso que contorna o canto externo do olho — a têmpora, do lado de fora. Toque com leveza, sem apertar.',
+   frase:'Eu libero essa tensão do meu sistema aos poucos e com segurança.'},
+  {id:'under_eye',nome:'Abaixo do olho',dur:14,
+   onde:'Logo abaixo da pupila, no osso da maçã do rosto — dois dedos abaixo do olho, na parte mais proeminente da bochecha.',
+   frase:'Não preciso permanecer em estado de alerta o tempo inteiro.'},
+  {id:'nose',nome:'Abaixo do nariz',dur:14,
+   onde:'No centro do filtro labial — o espaço entre a base do nariz e o lábio superior. Um ponto só, no meio.',
+   frase:'Posso sentir isso sem me perder de mim.'},
+  {id:'chin',nome:'Queixo',dur:14,
+   onde:'Na dobra entre o lábio inferior e o queixo — aquela reentrância no centro. Na frente, não embaixo.',
+   frase:'Estou ensinando meu corpo que este momento é seguro.'},
+  {id:'collar',nome:'Clavícula',dur:14,
+   onde:'Logo abaixo da clavícula, cerca de 3 cm abaixo e para dentro do ombro. Pode bater dos dois lados ao mesmo tempo.',
+   frase:'Eu permito que essa carga emocional deixe meu corpo agora.'},
+  {id:'underarm',nome:'Lado do corpo',dur:14,
+   onde:'No lado do tronco, cerca de 10 cm abaixo da axila — na altura do sutiã. Use a mão oposta para bater.',
+   frase:'A cada respiração, meu sistema nervoso encontra mais calma.'}
+];
+
+const EMOCOES = [
+  {val:'tristeza',label:'Tristeza ou luto',icon:'🌧️',frase:'Posso acolher essa tristeza sem me abandonar dentro dela. Meu corpo merece cuidado enquanto sente.'},
+  {val:'raiva',label:'Raiva ou frustração',icon:'🔥',frase:'Posso sentir essa raiva sem deixar que ela tome conta de mim. Meu corpo não precisa continuar em defesa.'},
+  {val:'medo',label:'Medo ou insegurança',icon:'🫀',frase:'Neste momento, posso desacelerar um pouco. Agora, meu corpo pode respirar com mais segurança.'},
+  {val:'vergonha',label:'Vergonha ou culpa',icon:'🌑',frase:'Não preciso continuar me punindo por isso. Posso me olhar com mais honestidade e menos dureza.'},
+  {val:'solidao',label:'Solidão ou abandono',icon:'🫧',frase:'Mesmo nos dias em que me sinto distante, posso continuar comigo mesma.'},
+  {val:'exaustao',label:'Esgotamento emocional',icon:'🍂',frase:'Meu corpo não foi feito para sobreviver em tensão constante. Descansar também é cuidado.'}
+];
+
+const HAV_PASSOS = [
+  {id:'arms',nome:'Acaricie os braços',sub:'Do ombro até o cotovelo, devagar',icon:'🤗',dur:30,cue:'Deslize as palmas pelos braços de cima para baixo. Lento. Como se estivesse aquecendo alguém que você ama.'},
+  {id:'face',nome:'Acaricie o rosto',sub:'Da testa até as maçãs do rosto',icon:'🫶',dur:30,cue:'Com as pontas dos dedos, desça da testa pelas bochechas suavemente. Esse toque envia sinal de segurança ao cérebro.'},
+  {id:'eyes',nome:'Abaixo dos olhos',sub:'Toque gentil nos ossos',icon:'😌',dur:20,cue:'Toque levemente abaixo dos olhos com os dedos médios. Repita sua frase enquanto toca.'},
+  {id:'arms2',nome:'Braços — uma última vez',sub:'Devagar, com presença',icon:'🌊',dur:25,cue:'Volte aos braços. Agora com mais calma. Sinta o calor das suas próprias mãos. Você está aqui.'}
+];
+
+const ESCALA_MSGS = {
+  0:'Você chegou tranquila.',1:'Quase imperceptível.',2:'Muito leve.',3:'Levemente presente.',
+  4:'Presente mas suave.',5:'Moderada — o corpo já percebe.',6:'Considerável.',
+  7:'Intensa — seu sistema nervoso está ativado.',8:'Muito intensa.',
+  9:'Muito alta — boa hora para cuidar disso.',10:'No limite. Estamos aqui para isso.'
+};
+
+const TL={rel:'Relacionamento',ans:'Ansiedade',ident:'Identidade',pat:'Padrão que repete',sol:'Solidão',aut:'Autoestima'};
+const TML={rec:'Menos de 1 mês',meses:'Alguns meses',ano:'Cerca de 1 ano',anos:'Mais de 1 ano'};
+const IL={clareza:'Clareza',alivio:'Alívio',direcao:'Direção',acolhida:'Acolhimento',coragem:'Coragem',plano:'Um próximo passo'};
+
+// STATE
+const S = {
+  step:0, nome:'', motivo:new Set(), tempo:'', impacto:new Set(),
+  tentou:new Set(), intencao:new Set(), extra:'', ansPre:null, ansPos:null,
+  eftScreen:'intro', eftIdx:0, eftTick:0, eftTaps:0, eftPulse:false,
+  eftTimer:null, eftPulseTimer:null,
+  havScreen:'intro', havEmocao:null, havStep:0, havTick:0, havTimer:null,
+  errs:{}
+};
+
+function goTo(n){
+  clearTimers();
+  S.step=n; S.errs={};
+  const tb=document.getElementById('topbar');
+  if(n>=1&&n<=6){tb.style.display='block';document.getElementById('counter').textContent=n+' de 6';document.getElementById('pbar').style.width=(n/6*100)+'%';}
+  else{tb.style.display='none';}
+  render();
+  window.scrollTo(0,0);
+}
+
+function clearTimers(){
+  if(S.eftTimer){clearInterval(S.eftTimer);S.eftTimer=null;}
+  if(S.eftPulseTimer){clearInterval(S.eftPulseTimer);S.eftPulseTimer=null;}
+  if(S.havTimer){clearInterval(S.havTimer);S.havTimer=null;}
+}
+
+function tog(set,val){const s=S[set];s.has(val)?s.delete(val):s.add(val);}
+
+function aviso(tipo){
+  if(tipo==='inicio')return`<div class="aviso-i"><div class="aviso-row"><span style="font-size:14px;flex-shrink:0">⚠️</span><div class="aviso-text"><strong style="color:#B5697A">Alívio não é cura.</strong> Estes exercícios são ferramentas de regulação emocional — não substituem psicoterapia, tratamento psiquiátrico ou medicamentos prescritos. <strong style="color:#B5697A">Não suspenda nenhum tratamento</strong> sem orientação médica.</div></div></div>`;
+  return`<div class="aviso-f"><div class="aviso-row"><span style="font-size:14px;flex-shrink:0">💚</span><div class="aviso-text"><strong style="color:#4A8A4A">Lembre-se:</strong> o que você sentiu aqui é alívio, não cura. Continue rigorosamente com todo tratamento médico e psiquiátrico em andamento.</div></div></div>`;
+}
+
+function escalaHTML(val,fnName){
+  let nums='';
+  for(let i=0;i<=10;i++){
+    const cls=val===i?'en sel':val!==null&&i<val?'en fil':'en';
+    nums+=`<div class="${cls}" onclick="${fnName}(${i})">${i}</div>`;
+  }
+  const msg=val!==null?`<div class="escala-msg">${ESCALA_MSGS[val]}</div>`:'';
+  return`<div class="escala-grid">${nums}</div><div class="escala-labels"><span>Nenhuma</span><span>Extrema</span></div>${msg}`;
+}
+
+function insightHTML(text){return`<div class="insight-card"><span class="insight-text" style="color:#B5697A;font-size:15px;flex-shrink:0;margin-top:2px">✦</span><div class="insight-text">${text}</div></div>`;}
+
+function wa(){return`<a href="https://wa.me/5567981448229?text=Ol%C3%A1%2C%20acabei%20de%20fazer%20o%20onboarding%20e%20quero%20agendar%20minha%20Sess%C3%A3o%20Pocket!" target="_blank" class="btn-wa"><svg width="17" height="17" viewBox="0 0 32 32" fill="white"><path d="M16 0C7.164 0 0 7.163 0 16c0 2.822.736 5.469 2.027 7.773L0 32l8.489-2.001A15.93 15.93 0 0 0 16 32c8.836 0 16-7.163 16-16S24.836 0 16 0zm8.07 22.43c-.34.956-1.99 1.826-2.724 1.942-.698.11-1.58.156-2.549-.16-.588-.19-1.343-.444-2.308-.869-4.063-1.754-6.714-5.84-6.916-6.112-.2-.27-1.634-2.173-1.634-4.146 0-1.973 1.034-2.944 1.4-3.347.367-.403.8-.504 1.067-.504.267 0 .534.002.768.014.246.013.577-.093.903.689.34.807 1.155 2.78 1.255 2.98.1.2.167.433.033.7-.133.267-.2.433-.4.667-.2.233-.42.52-.6.7-.2.2-.408.416-.175.816.233.4 1.034 1.706 2.218 2.763 1.523 1.358 2.806 1.778 3.206 1.978.4.2.633.167.867-.1.233-.267 1-1.167 1.267-1.567.267-.4.533-.333.9-.2.367.133 2.334 1.1 2.734 1.3.4.2.667.3.767.467.1.167.1.967-.24 1.923z"/></svg>Agendar no WhatsApp</a>`;}
+
+function render(){
+  const app=document.getElementById('app');
+  app.style.paddingTop=S.step>=1&&S.step<=6?'96px':'32px';
+  switch(S.step){
+    case 0: app.innerHTML=step0();break;
+    case 1: app.innerHTML=step1();break;
+    case 2: app.innerHTML=step2();break;
+    case 3: app.innerHTML=step3();break;
+    case 4: app.innerHTML=step4();break;
+    case 5: app.innerHTML=step5();break;
+    case 6: app.innerHTML=step6();break;
+    case 7: app.innerHTML=step7();break;
+    case 8: app.innerHTML=eftRender();if(S.eftScreen==='tapping')startEFT();break;
+    case 9: app.innerHTML=step9();break;
+    case 10: app.innerHTML=havRender();if(S.havScreen==='session')startHav();break;
+    case 11: app.innerHTML=step11();break;
+  }
+}
+
+// ── STEP 0 ──────────────────────────────────────────────
+function step0(){return`<div class="step">
+<div class="circle-icon">🌸</div>
+<div>
+  <div class="eyebrow er">Bem-vinda</div>
+  <h1>Preparei este espaço<br>para receber você.</h1>
+  <div class="lead" style="margin-top:14px">Essas perguntas me ajudam a entender melhor o momento que você está vivendo.</div>
+</div>
+<div class="divider">sua jornada</div>
+<div>
+  <div style="font-size:13px;font-weight:600;color:#261820;margin-bottom:4px">Complete os 3 pilares na área de membros</div>
+  <div style="font-size:13px;color:#7A6068;margin-bottom:14px;line-height:1.6">São os 3 pilares que ajudam a revelar os padrões emocionais por trás do que você está vivendo — e me permitem conduzir sua sessão com mais precisão.</div>
+  <div class="pillar-card"><div class="pillar-num">01</div><div><div class="pillar-title">🧬 Personalidade</div><div class="pillar-sub">Quem você é e como você funciona por dentro</div></div></div>
+  <div class="pillar-card"><div class="pillar-num">02</div><div><div class="pillar-title">🌿 Raiz Invisível</div><div class="pillar-sub">Os padrões que moldam suas relações sem você ver</div></div></div>
+  <div class="pillar-card" style="margin-bottom:0"><div class="pillar-num">03</div><div><div class="pillar-title">🧭 Mapa Emocional</div><div class="pillar-sub">O território da sua vida emocional agora</div></div></div>
+</div>
+<div class="hero-box">
+  <div class="hero-box-title">✦ O que te espera aqui</div>
+  <div class="hero-row"><span style="font-size:22px;flex-shrink:0">🧠</span><div><div class="hero-row-title">Perguntas que revelam o que importa</div><div class="hero-row-sub">As perguntas abaixo me ajudam a entender com mais clareza o que você está vivendo hoje.</div></div></div>
+  <div class="hero-row"><span style="font-size:22px;flex-shrink:0">⚡</span><div><div class="hero-row-title">Uma técnica usada com veteranos de guerra</div><div class="hero-row-sub">O EFT foi aplicado em militares com trauma severo. Você vai experimentar uma versão guiada para regular sua ansiedade.</div></div></div>
+  <div class="hero-row" style="margin-bottom:0"><span style="font-size:22px;flex-shrink:0">🌊</span><div><div class="hero-row-title">Regulação emocional profunda</div><div class="hero-row-sub">Uma segunda técnica somática para trabalhar dores que não são ansiedade — raiva, vergonha, luto, esgotamento.</div></div></div>
+  <div class="linen-note"><div class="linen-note-text">✦ <strong style="color:#B5697A">Alívio não é cura.</strong> Os exercícios aqui são ferramentas de regulação emocional — não substituem tratamento médico ou psiquiátrico.</div></div>
+</div>
+<div class="wa-box">
+  <div class="wa-title">📅 Agende sua sessão</div>
+  <div class="wa-sub">Quando terminar, me chama no WhatsApp para agendarmos sua sessão.</div>
+  ${wa()}
+</div>
+<button class="btn-p" onclick="goTo(1)">Começar →</button>
+</div>`;}
+
+// ── STEP 1 ──────────────────────────────────────────────
+function step1(){return`<div class="step">
+<h2>Qual é o seu nome?</h2>
+<div>
+  <input class="field" type="text" id="nome-input" placeholder="Seu primeiro nome" maxlength="40" value="${S.nome}" oninput="S.nome=this.value" autocomplete="given-name">
+  <div class="char-hint" id="nome-count">${S.nome.length>0?S.nome.length+'/40':''}</div>
+  <div class="err-msg" id="err-nome">Escreva seu nome para continuar</div>
+</div>
+<button class="btn-p" onclick="s1next()">Continuar →</button>
+<button class="btn-g" onclick="goTo(0)">← Voltar</button>
+</div>`;}
+
+function s1next(){
+  const v=document.getElementById('nome-input').value.trim();
+  if(!v){document.getElementById('err-nome').style.display='block';return;}
+  S.nome=v;goTo(2);
+}
+
+// ── STEP 2 ──────────────────────────────────────────────
+function step2(){
+  const opts=[
+    {val:'rel',icon:'💛',title:'Meu relacionamento',sub:'Conflitos, dependência, distância emocional'},
+    {val:'ans',icon:'🌊',title:'Ansiedade e angústia',sub:'O aperto que não passa, a cabeça que não para'},
+    {val:'ident',icon:'🪞',title:'Me perdi de mim mesma',sub:'Não sei mais o que quero, quem sou fora dos outros'},
+    {val:'pat',icon:'🔄',title:'Um padrão que se repete',sub:'Sempre acabo no mesmo lugar, com as mesmas dores'},
+    {val:'sol',icon:'🫧',title:'Solidão e vazio',sub:'Mesmo rodeada de gente, me sinto sozinha por dentro'},
+    {val:'aut',icon:'🌱',title:'Autoestima e autossabotagem',sub:'Dificuldade de me valorizar e acreditar em mim'}
+  ];
+  const last=S.motivo.size>0?[...S.motivo][S.motivo.size-1]:null;
+  return`<div class="step">
+<div><h2>O que mais tem pesado<br>em você, ${S.nome}?</h2><div class="hint-small">Pode marcar mais de uma ✦</div></div>
+<div>${opts.map(o=>`<div class="opt${S.motivo.has(o.val)?' sel':''}" onclick="tog2('motivo','${o.val}')"><span class="opt-icon">${o.icon}</span><div class="opt-body"><div class="opt-title">${o.title}</div><div class="opt-sub">${o.sub}</div></div><div class="chk">${S.motivo.has(o.val)?'✓':''}</div></div>`).join('')}</div>
+${last?insightHTML(INS_MOTIVO[last]):''}
+<div class="err-msg" id="err-mot">Marque pelo menos uma opção</div>
+<button class="btn-p" onclick="s2next()">Continuar →</button>
+<button class="btn-g" onclick="goTo(1)">← Voltar</button>
+</div>`;}
+
+function tog2(set,val){tog(set,val);render();}
+
+function s2next(){if(S.motivo.size===0){document.getElementById('err-mot').style.display='block';return;}goTo(3);}
+
+// ── STEP 3 ──────────────────────────────────────────────
+function step3(){
+  const opts=[
+    {val:'rec',icon:'🕊️',title:'Menos de 1 mês',sub:'Algo recente que me pegou de surpresa'},
+    {val:'meses',icon:'🌿',title:'Alguns meses',sub:'Já está presente na minha rotina'},
+    {val:'ano',icon:'🍂',title:'Cerca de 1 ano',sub:'Tem ficado mais pesado com o tempo'},
+    {val:'anos',icon:'🪨',title:'Mais de 1 ano',sub:'Carrego isso há muito tempo, já virou parte de mim'}
+  ];
+  return`<div class="step">
+<h2>Há quanto tempo<br>isso está presente?</h2>
+<div>${opts.map(o=>`<div class="opt${S.tempo===o.val?' sel':''}" onclick="setTempo('${o.val}')"><span class="opt-icon">${o.icon}</span><div class="opt-body"><div class="opt-title">${o.title}</div><div class="opt-sub">${o.sub}</div></div></div>`).join('')}</div>
+${S.tempo?insightHTML(INS_TEMPO[S.tempo]):''}
+<div class="err-msg" id="err-tempo">Escolha uma opção</div>
+<button class="btn-p" onclick="s3next()">Continuar →</button>
+<button class="btn-g" onclick="goTo(2)">← Voltar</button>
+</div>`;}
+
+function setTempo(v){S.tempo=v;render();}
+function s3next(){if(!S.tempo){document.getElementById('err-tempo').style.display='block';return;}goTo(4);}
+
+// ── STEP 4 ──────────────────────────────────────────────
+function step4(){
+  const opts=[{val:'amor',icon:'❤️',title:'Vínculos afetivos'},{val:'trab',icon:'💼',title:'Trabalho e foco'},{val:'corp',icon:'🧘',title:'Corpo e saúde'},{val:'auto',icon:'🪞',title:'Autoconfiança'},{val:'soc',icon:'🫂',title:'Vida social'},{val:'dec',icon:'🧭',title:'Decisões'}];
+  const ins=S.impacto.size>=2?insightHTML('Quando a dor se espalha por mais de uma área, quase sempre há uma raiz única alimentando todas elas. É isso que vamos encontrar juntas.'):'';
+  return`<div class="step">
+<div><h2>Onde você sente isso<br>no seu dia a dia?</h2><div class="hint-small">Pode marcar mais de uma ✦</div></div>
+<div class="grid2">${opts.map(o=>`<div class="gc${S.impacto.has(o.val)?' sel':''}" onclick="tog2('impacto','${o.val}')"><div class="gc-top"><span class="gc-icon">${o.icon}</span><div class="gchk">${S.impacto.has(o.val)?'✓':''}</div></div><div class="gc-title">${o.title}</div></div>`).join('')}</div>
+${ins}
+<div class="err-msg" id="err-imp">Marque pelo menos uma área</div>
+<button class="btn-p" onclick="s4next()">Continuar →</button>
+<button class="btn-g" onclick="goTo(3)">← Voltar</button>
+</div>`;}
+
+function s4next(){if(S.impacto.size===0){document.getElementById('err-imp').style.display='block';return;}goTo(5);}
+
+// ── STEP 5 ──────────────────────────────────────────────
+function step5(){
+  const opts=[
+    {val:'ter',icon:'🛋️',title:'Terapia ou acompanhamento',sub:'Já fui, ainda vou, ou tentei no passado'},
+    {val:'livros',icon:'📖',title:'Livros, podcasts e conteúdo',sub:'Busquei entender pela informação'},
+    {val:'amigos',icon:'💬',title:'Conversas com amigas',sub:'Tentei elaborar falando com quem confio'},
+    {val:'medi',icon:'🌬️',title:'Meditação ou práticas espirituais',sub:'Busquei silêncio, respiração, fé'},
+    {val:'nada',icon:'🪨',title:'Ainda não fiz nada',sub:'Essa é a primeira vez que peço ajuda'},
+    {val:'outro',icon:'✨',title:'Outro caminho',sub:'Tentei algo diferente dos anteriores'}
+  ];
+  let ins='';
+  if(S.tentou.size>0&&!S.tentou.has('nada'))ins=insightHTML('Quem tenta já está em movimento. Cada caminho percorrido te trouxe até aqui — e aqui é um bom lugar para estar.');
+  else if(S.tentou.has('nada'))ins=insightHTML('Pedir ajuda pela primeira vez exige mais coragem do que qualquer coisa que você poderia ter tentado antes. Fico honrada em ser essa primeira vez.');
+  return`<div class="step">
+<div><h2>O que você já tentou<br>fazer com isso?</h2><div class="hint-small">Pode marcar mais de uma ✦</div></div>
+<div>${opts.map(o=>`<div class="opt${S.tentou.has(o.val)?' sel':''}" onclick="tog2('tentou','${o.val}')"><span class="opt-icon">${o.icon}</span><div class="opt-body"><div class="opt-title">${o.title}</div><div class="opt-sub">${o.sub}</div></div><div class="chk">${S.tentou.has(o.val)?'✓':''}</div></div>`).join('')}</div>
+${ins}
+<div class="err-msg" id="err-ten">Marque pelo menos uma opção</div>
+<button class="btn-p" onclick="s5next()">Continuar →</button>
+<button class="btn-g" onclick="goTo(4)">← Voltar</button>
+</div>`;}
+
+function s5next(){if(S.tentou.size===0){document.getElementById('err-ten').style.display='block';return;}goTo(6);}
+
+// ── STEP 6 ──────────────────────────────────────────────
+function step6(){
+  const opts=[{val:'clareza',icon:'🔦',title:'Clareza'},{val:'alivio',icon:'🍃',title:'Alívio'},{val:'direcao',icon:'🧭',title:'Direção'},{val:'acolhida',icon:'🤍',title:'Acolhimento'},{val:'coragem',icon:'🔥',title:'Coragem'},{val:'plano',icon:'📌',title:'Um próximo passo'}];
+  return`<div class="step">
+<div><h2>Como você quer<br>sair da sessão?</h2><div class="hint-small">Pode marcar mais de uma ✦</div></div>
+<div class="grid2">${opts.map(o=>`<div class="gc${S.intencao.has(o.val)?' sel':''}" onclick="tog2('intencao','${o.val}')"><div class="gc-top"><span class="gc-icon">${o.icon}</span><div class="gchk">${S.intencao.has(o.val)?'✓':''}</div></div><div class="gc-title">${o.title}</div></div>`).join('')}</div>
+<div class="err-msg" id="err-int">Marque pelo menos uma opção</div>
+<div class="divider">última pergunta</div>
+<h3>Tem algo que não perguntei<br>que você quer que eu saiba?</h3>
+<div><textarea class="field" rows="5" maxlength="500" placeholder="Sem filtro, sem julgamento — esse espaço é completamente seu." oninput="S.extra=this.value;document.getElementById('ctx-count').textContent=this.value.length+'/500'">${S.extra}</textarea><div class="char-hint" id="ctx-count">${S.extra.length>0?S.extra.length+'/500':'Opcional · até 500 caracteres'}</div></div>
+<button class="btn-p" onclick="s6next()">Enviar →</button>
+<button class="btn-g" onclick="goTo(5)">← Voltar</button>
+</div>`;}
+
+function s6next(){if(S.intencao.size===0){document.getElementById('err-int').style.display='block';return;}goTo(7);}
+
+// ── STEP 7 — ESCALA PRÉ ────────────────────────────────
+function step7(){
+  return`<div class="step">
+<div>
+  <div class="eyebrow er">Antes de começar</div>
+  <h2>Onde está sua ansiedade<br>agora, de 0 a 10?</h2>
+  <div class="lead" style="margin-top:10px">Quero registrar como você chegou — para que você perceba a mudança depois.</div>
+</div>
+${escalaHTML(S.ansPre,'setAnsPre')}
+${S.ansPre!==null?`<div class="card"><div style="font-size:13px;color:#7A6068;line-height:1.65">Registrado. Vamos fazer o EFT agora — e depois você marca de novo para ver o que mudou.</div></div>`:''}
+<div class="err-msg" id="err-pre">Selecione um número para continuar</div>
+<button class="btn-p" onclick="s7next()" ${S.ansPre===null?'disabled':''}>Continuar para o EFT →</button>
+</div>`;}
+
+function setAnsPre(v){S.ansPre=v;render();}
+function s7next(){if(S.ansPre===null){document.getElementById('err-pre').style.display='block';return;}goTo(8);}
+
+// ── EFT ───────────────────────────────────────────────
+function eftSVG(){
+  const idx=S.eftIdx;
+  const pts=[
+    {cx:8,cy:76},{cx:50,cy:4},{cx:41,cy:13},{cx:62,cy:15},{cx:50,cy:21},
+    {cx:50,cy:27},{cx:50,cy:33},{cx:50,cy:38},{cx:32,cy:63}
+  ];
+  let circles='';
+  pts.forEach((p,i)=>{
+    const active=i===idx;
+    const done=i<idx;
+    const fill=active?'#B5697A':done?'#E8B0BC':'#fff';
+    const r=active?8:6;
+    const tc=active?'white':done?'#B5697A':'#B5697A';
+    circles+=`<circle cx="${p.cx}" cy="${p.cy}" r="${r}" fill="${fill}" stroke="#B5697A" stroke-width="1.2"/>`;
+    circles+=`<text x="${p.cx}" y="${p.cy+3.5}" text-anchor="middle" font-size="7" fill="${tc}" font-family="system-ui" font-weight="800">${i+1}</text>`;
+    if(active){circles+=`<circle cx="${p.cx}" cy="${p.cy}" r="${r+4}" fill="#B5697A" opacity="${S.eftPulse?0.15:0}" style="transition:all .28s"/>`;}
+  });
+  return`<svg viewBox="0 0 100 125" style="width:100%;max-width:140px;display:block;margin:0 auto">
+<ellipse cx="50" cy="18" rx="18" ry="20" fill="#EDE8E0" stroke="#DDD5C8" stroke-width="1.2"/>
+<rect x="34" y="44" width="32" height="40" rx="7" fill="#EDE8E0" stroke="#DDD5C8" stroke-width="1.2"/>
+<rect x="16" y="46" width="18" height="30" rx="7" fill="#EDE8E0" stroke="#DDD5C8" stroke-width="1.2"/>
+<rect x="66" y="46" width="18" height="30" rx="7" fill="#EDE8E0" stroke="#DDD5C8" stroke-width="1.2"/>
+<rect x="35" y="83" width="12" height="34" rx="6" fill="#EDE8E0" stroke="#DDD5C8" stroke-width="1.2"/>
+<rect x="53" y="83" width="12" height="34" rx="6" fill="#EDE8E0" stroke="#DDD5C8" stroke-width="1.2"/>
+<circle cx="44" cy="15" r="2.5" fill="white" stroke="#DDD5C8" stroke-width="0.5"/>
+<circle cx="56" cy="15" r="2.5" fill="white" stroke="#DDD5C8" stroke-width="0.5"/>
+<circle cx="44" cy="15" r="1.2" fill="#7A6068"/>
+<circle cx="56" cy="15" r="1.2" fill="#7A6068"/>
+<path d="M45 23 Q50 27 55 23" fill="none" stroke="#A89098" stroke-width="0.8" stroke-linecap="round"/>
+${circles}
+</svg>`;}
+
+function timerSVG(pct,color,num){
+  const r=21,c=2*Math.PI*r,off=c*(1-pct);
+  return`<svg width="52" height="52" style="position:absolute;top:0;left:0;transform:rotate(-90deg)">
+<circle cx="26" cy="26" r="${r}" fill="none" stroke="#EDE8E0" stroke-width="3.5"/>
+<circle cx="26" cy="26" r="${r}" fill="none" stroke="${color}" stroke-width="3.5" stroke-linecap="round"
+  stroke-dasharray="${c}" stroke-dashoffset="${off}" style="transition:stroke-dashoffset 1s linear"/>
+</svg><span class="timer-num">${num}s</span>`;}
+
+function eftDotsHTML(){
+  return`<div class="progress-dots">${PONTOS.map((p,i)=>{
+    const w=i===S.eftIdx?22:6;
+    const cls=i===S.eftIdx?'dot-seg active':i<S.eftIdx?'dot-seg done':'dot-seg';
+    return`<div class="${cls}" style="width:${w}px"></div>`;
+  }).join('')}</div>`;}
+
+function eftLegendHTML(){
+  return`<div class="legend-grid">${PONTOS.map((p,i)=>{
+    const isA=i===S.eftIdx,isDone=i<S.eftIdx;
+    const cls=isA?'leg-item active':isDone?'leg-item done-item':'leg-item';
+    const nb=isA?'background:#B5697A;border-color:#B5697A;color:white':isDone?'background:#E8B0BC;border-color:#B5697A;color:#B5697A':'background:#EDE8E0;border-color:#DDD5C8;color:#A89098';
+    const nc=isA?'color:#B5697A;font-weight:600':isDone?'color:#A89098':'color:#7A6068';
+    const arrow=isA?`<span class="leg-arrow" style="color:#B5697A">←</span>`:isDone?`<span class="leg-arrow" style="color:#A89098">✓</span>`:'';
+    return`<div class="${cls}"><div class="leg-num" style="${nb}">${i+1}</div><span class="leg-name" style="${nc}">${p.nome}</span>${arrow}</div>`;
+  }).join('')}</div>`;}
+
+function eftRender(){
+  if(S.eftScreen==='intro')return eftIntro();
+  if(S.eftScreen==='tapping')return eftTapping();
+  return eftDone();
+}
+
+function eftIntro(){return`<div class="step">
+<div>
+  <div class="eyebrow er">EFT · Técnica de alívio emocional</div>
+  <h2>Uma técnica para quando<br>a ansiedade apertar</h2>
+  <div class="lead" style="margin-top:12px">O EFT (Emotional Freedom Technique) é uma técnica de regulação emocional que você pode usar sempre que precisar. Ela combina toque em pontos específicos da pele com linguagem emocional. O toque ativa receptores sensoriais que enviam sinais ao cérebro reduzindo a ativação da amígdala — a região responsável pelo medo e pela ansiedade. Foi utilizada com veteranos de guerra, sobreviventes de trauma e pacientes com TEPT em programas militares e clínicos ao redor do mundo.</div>
+</div>
+<div class="hero-box">
+  <div class="hero-box-title">✦ Sobre as frases que você vai repetir</div>
+  <div style="font-family:'Cormorant Garamond',serif;font-size:15px;color:#261820;line-height:1.8;font-style:italic;margin-bottom:10px">"Não precisa acreditar 100% nelas — só dizer. O cérebro não distingue o que você fala do que você sente: as palavras chegam antes da crença."</div>
+  <div style="font-size:13px;color:#7A6068;line-height:1.65">Cada frase foi escolhida para contrariar, com gentileza, o que o medo instalou. Dizer em voz alta potencializa o efeito.</div>
+</div>
+<div class="card">
+  <div style="display:flex;flex-direction:column;gap:10px">
+    ${[['🤲','Toque em 9 pontos do corpo, um por vez'],['🗣️','Repita as frases em voz alta — se puder'],['📍','Cada ponto tem instrução exata de onde tocar'],['⏱️','Leva cerca de 2 minutos no total']].map(([i,t])=>`<div style="display:flex;gap:12px;align-items:center"><span style="font-size:18px">${i}</span><span style="font-size:14px;color:#7A6068">${t}</span></div>`).join('')}
+  </div>
+</div>
+${aviso('inicio')}
+<button class="btn-p" onclick="startEFTSession()">Iniciar EFT →</button>
+<button class="btn-g" onclick="goTo(9)">Pular por agora</button>
+</div>`;}
+
+function eftTapping(){
+  const pt=PONTOS[S.eftIdx];
+  const pct=S.eftTick/pt.dur;
+  const secs=Math.max(0,pt.dur-S.eftTick);
+  return`<div class="step">
+${eftDotsHTML()}
+<div style="text-align:center">
+  <div class="eyebrow er">ponto ${S.eftIdx+1} de ${PONTOS.length}</div>
+  <h2>${pt.nome}</h2>
+</div>
+<div class="onde-box">
+  <div class="onde-label">📍 Onde tocar</div>
+  <div class="onde-text">${pt.onde}</div>
+</div>
+<div class="diagram-wrap">
+  ${eftSVG()}
+  ${eftLegendHTML()}
+</div>
+<div class="timer-row">
+  <div class="timer-ring">${timerSVG(pct,'#B5697A',secs)}</div>
+  <div>
+    <div class="timer-label">${pt.setup?'Repita 3 vezes enquanto toca':'Repita enquanto toca'}</div>
+    <div class="timer-taps">${S.eftTaps} toques ✦</div>
+  </div>
+</div>
+<div class="frase-card ${pt.setup?'setup':'normal'}">
+  ${pt.setup?'<div class="frase-label">Repita 3 vezes</div>':''}
+  <div class="frase-text">"${pt.frase}"</div>
+</div>
+</div>`;}
+
+function eftDone(){return`<div class="step" style="align-items:center;text-align:center">
+<div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#5A8A5A,#3A6A3A);display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 8px 36px rgba(58,106,58,.28)">🌿</div>
+<div>
+  <div class="eyebrow eg">EFT concluído</div>
+  <h2>Seu corpo recebeu o sinal.</h2>
+  <div class="lead" style="margin-top:12px">O que aconteceu aqui tem base fisiológica — não simbólica. Guarda essa técnica: ela funciona sempre que a ansiedade apertar.</div>
+</div>
+${aviso('fim')}
+<button class="btn-p" style="width:100%" onclick="goTo(9)">Continuar →</button>
+</div>`;}
+
+function startEFTSession(){S.eftScreen='tapping';S.eftIdx=0;S.eftTick=0;S.eftTaps=0;render();startEFT();}
+
+function startEFT(){
+  clearTimers();
+  S.eftTimer=setInterval(()=>{
+    S.eftTick++;
+    const pt=PONTOS[S.eftIdx];
+    if(S.eftTick>=pt.dur){
+      clearInterval(S.eftTimer);S.eftTimer=null;
+      clearInterval(S.eftPulseTimer);S.eftPulseTimer=null;
+      if(S.eftIdx===PONTOS.length-1){setTimeout(()=>{S.eftScreen='done';render();},500);}
+      else{setTimeout(()=>{S.eftIdx++;S.eftTick=0;S.eftTaps=0;S.eftPulse=false;render();startEFT();},500);}
+      return;
+    }
+    updateEFTDisplay();
+  },1000);
+  S.eftPulseTimer=setInterval(()=>{
+    S.eftTaps++;S.eftPulse=true;
+    updateEFTDisplay();
+    setTimeout(()=>{S.eftPulse=false;updateEFTDisplay();},280);
+  },1400);
+}
+
+function updateEFTDisplay(){
+  if(S.step!==8||S.eftScreen!=='tapping')return;
+  const pt=PONTOS[S.eftIdx];
+  const pct=S.eftTick/pt.dur;
+  const secs=Math.max(0,pt.dur-S.eftTick);
+  const r=document.querySelector('.timer-ring');
+  if(r)r.innerHTML=timerSVG(pct,'#B5697A',secs);
+  const t=document.querySelector('.timer-taps');
+  if(t)t.textContent=S.eftTaps+' toques ✦';
+  const dots=document.querySelector('.progress-dots');
+  if(dots)dots.innerHTML=PONTOS.map((p,i)=>{const w=i===S.eftIdx?22:6;const cls=i===S.eftIdx?'dot-seg active':i<S.eftIdx?'dot-seg done':'dot-seg';return`<div class="${cls}" style="width:${w}px"></div>`;}).join('');
+  const svgW=document.querySelector('.diagram-wrap svg');
+  if(svgW){const newSvg=document.createElement('div');newSvg.innerHTML=eftSVG();svgW.parentNode.replaceChild(newSvg.firstChild,svgW);}
+  const lg=document.querySelector('.legend-grid');
+  if(lg)lg.innerHTML=PONTOS.map((p,i)=>{const isA=i===S.eftIdx,isDone=i<S.eftIdx;const cls=isA?'leg-item active':isDone?'leg-item done-item':'leg-item';const nb=isA?'background:#B5697A;border-color:#B5697A;color:white':isDone?'background:#E8B0BC;border-color:#B5697A;color:#B5697A':'background:#EDE8E0;border-color:#DDD5C8;color:#A89098';const nc=isA?'color:#B5697A;font-weight:600':isDone?'color:#A89098':'color:#7A6068';const arrow=isA?`<span class="leg-arrow" style="color:#B5697A">←</span>`:isDone?`<span class="leg-arrow" style="color:#A89098">✓</span>`:'';return`<div class="${cls}"><div class="leg-num" style="${nb}">${i+1}</div><span class="leg-name" style="${nc}">${p.nome}</span>${arrow}</div>`;}).join('');
+}
+
+// ── STEP 9 — ESCALA PÓS ────────────────────────────────
+function step9(){
+  const delta=S.ansPre!==null&&S.ansPos!==null?S.ansPre-S.ansPos:null;
+  let deltaHTML='';
+  if(delta!==null){
+    if(delta>0)deltaHTML=`<div class="delta-box" style="background:linear-gradient(135deg,#F2FAF2,#EAF5EA);border:1.5px solid #C0D8C0"><div class="delta-num">−${delta} pontos</div><div class="delta-text">${delta>=5?'Mudança significativa. Seu sistema nervoso respondeu com profundidade.':delta>=3?'Uma redução real. O corpo percebeu o cuidado.':'Pequena mas real. Cada décimo importa.'}</div></div>`;
+    else if(delta===0)deltaHTML=`<div class="delta-box" style="background:linear-gradient(135deg,#FDF8F2,#FAF4EE);border:1.5px solid #DDD5C8"><div class="lead">O número pode não ter mudado — mas algo interno se moveu. Às vezes a regulação acontece abaixo do que conseguimos medir.</div></div>`;
+    else deltaHTML=`<div class="delta-box" style="background:linear-gradient(135deg,#FDF5F7,#F9F1F4);border:1.5px solid #EDD0D5"><div class="lead">Tudo bem. Às vezes nomear o que sentimos faz a ansiedade aparecer mais antes de baixar. Continue.</div></div>`;
+  }
+  return`<div class="step">
+<div>
+  <div class="eyebrow es">E agora?</div>
+  <h2>Como está sua ansiedade<br>neste momento?</h2>
+</div>
+${escalaHTML(S.ansPos,'setAnsPos')}
+${deltaHTML}
+<div class="err-msg" id="err-pos">Selecione um número para continuar</div>
+<button class="btn-p" onclick="s9next()" ${S.ansPos===null?'disabled':''}>Continuar →</button>
+</div>`;}
+
+function setAnsPos(v){S.ansPos=v;render();}
+function s9next(){if(S.ansPos===null){document.getElementById('err-pos').style.display='block';return;}goTo(10);}
+
+// ── HAVENING ──────────────────────────────────────────
+function havTimerSVG(pct,secs){
+  const r=46,c=2*Math.PI*r,off=c*(1-pct);
+  return`<svg width="110" height="110" style="position:absolute;top:0;left:0;transform:rotate(-90deg)">
+<circle cx="55" cy="55" r="${r}" fill="none" stroke="#EDE8E0" stroke-width="4"/>
+<circle cx="55" cy="55" r="${r}" fill="none" stroke="#7A9480" stroke-width="4" stroke-linecap="round"
+  stroke-dasharray="${c}" stroke-dashoffset="${off}" style="transition:stroke-dashoffset 1s linear"/>
+</svg><div class="hav-inner"><span class="hav-icon">${HAV_PASSOS[S.havStep].icon}</span><span class="hav-secs">${secs}s</span></div>`;}
+
+function havRender(){
+  if(S.havScreen==='intro')return havIntro();
+  if(S.havScreen==='session')return havSession();
+  return havDone();
+}
+
+function havIntro(){
+  const emo=EMOCOES.find(e=>e.val===S.havEmocao);
+  return`<div class="step">
+<div>
+  <div class="eyebrow es">Havening · Regulação emocional profunda</div>
+  <h2>Para a dor que<br>não é ansiedade</h2>
+  <div class="lead" style="margin-top:12px">O Havening usa toque suave e repetitivo para gerar um estado de calma profunda no cérebro. Ele desativa a carga emocional sem exigir que você entenda ou explique o que sente.</div>
+</div>
+${aviso('inicio')}
+<h3>O que está presente em você agora?</h3>
+<div>${EMOCOES.map(e=>`<div class="hav-opt${S.havEmocao===e.val?' sel':''}" onclick="setHavEmo('${e.val}')"><span class="hav-opt-icon">${e.icon}</span><span class="hav-opt-label">${e.label}</span><div class="hav-chk">${S.havEmocao===e.val?'✓':''}</div></div>`).join('')}</div>
+${emo?`<div class="anchor-box"><div class="anchor-label">Sua frase âncora</div><div class="anchor-text">"${emo.frase}"</div></div>`:''}
+<button class="btn-p" onclick="startHavSession()" ${!S.havEmocao?'disabled':''}>Iniciar Havening →</button>
+<button class="btn-g" onclick="goTo(11)">Pular por agora</button>
+</div>`;}
+
+function setHavEmo(v){S.havEmocao=v;render();}
+
+function havSession(){
+  const step=HAV_PASSOS[S.havStep];
+  const pct=S.havTick/step.dur;
+  const secs=Math.max(0,step.dur-S.havTick);
+  const emo=EMOCOES.find(e=>e.val===S.havEmocao);
+  return`<div class="step">
+<div class="progress-dots">${HAV_PASSOS.map((p,i)=>{const w=i===S.havStep?28:8;const cls=i===S.havStep?'dot-seg active':i<S.havStep?'dot-seg done':'dot-seg';return`<div class="${cls}" style="width:${w}px;background:${i<=S.havStep?'#7A9480':'#DDD5C8'}"></div>`;}).join('')}</div>
+<div style="text-align:center">
+  <div class="eyebrow es">etapa ${S.havStep+1} de ${HAV_PASSOS.length}</div>
+  <h2>${step.nome}</h2>
+  <div style="font-size:13px;color:#A89098;margin-top:4px">${step.sub}</div>
+</div>
+<div class="hav-timer-ring" id="hav-ring">${havTimerSVG(pct,secs)}</div>
+<div class="hav-cue-card">
+  <div class="hav-cue-text">${step.cue}</div>
+  <div style="height:1px;background:#DDD5C8;margin-bottom:12px"></div>
+  <div class="hav-cue-label">Enquanto toca, repita:</div>
+  <div class="hav-frase">"${emo?emo.frase:''}"</div>
+</div>
+</div>`;}
+
+function havDone(){return`<div class="step" style="align-items:center;text-align:center">
+<div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#5A7A6A,#3A5A4A);display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 8px 36px rgba(58,90,74,.28)">🌊</div>
+<div>
+  <div class="eyebrow es">Havening concluído</div>
+  <h2>O toque fez seu trabalho.<br>Você fez o seu também.</h2>
+  <div class="lead" style="margin-top:12px">O que você sente agora não é coincidência. É o seu sistema nervoso respondendo ao cuidado que você acabou de dar a si mesma.</div>
+</div>
+${aviso('fim')}
+<button class="btn-p" style="width:100%" onclick="goTo(11)">Continuar →</button>
+</div>`;}
+
+function startHavSession(){S.havScreen='session';S.havStep=0;S.havTick=0;render();startHav();}
+
+function startHav(){
+  clearTimers();
+  S.havTimer=setInterval(()=>{
+    S.havTick++;
+    const step=HAV_PASSOS[S.havStep];
+    if(S.havTick>=step.dur){
+      clearInterval(S.havTimer);S.havTimer=null;
+      if(S.havStep===HAV_PASSOS.length-1){setTimeout(()=>{S.havScreen='done';render();},500);}
+      else{setTimeout(()=>{S.havStep++;S.havTick=0;render();startHav();},500);}
+      return;
+    }
+    const ring=document.getElementById('hav-ring');
+    if(ring){const secs=Math.max(0,HAV_PASSOS[S.havStep].dur-S.havTick);const pct=S.havTick/HAV_PASSOS[S.havStep].dur;ring.innerHTML=havTimerSVG(pct,secs);}
+  },1000);
+}
+
+// ── STEP 11 — FINAL ────────────────────────────────────
+function step11(){
+  const delta=S.ansPre!==null&&S.ansPos!==null?S.ansPre-S.ansPos:null;
+  const motPills=[...S.motivo].map(k=>`<span class="pill">Tema: <strong>${TL[k]}</strong></span>`).join('');
+  const tmpPill=S.tempo?`<span class="pill">Há: <strong>${TML[S.tempo]}</strong></span>`:'';
+  const intPills=[...S.intencao].map(k=>`<span class="pill">Quer: <strong>${IL[k]}</strong></span>`).join('');
+  const deltaBox=delta!==null&&delta>0?`<div class="delta-reg"><div class="delta-reg-text">Você entrou com ansiedade <strong style="color:#B5697A">${S.ansPre}</strong> e encerrou com <strong style="color:#7A9480">${S.ansPos}</strong>. Isso não é coincidência — é o que um sistema nervoso cuidado faz.</div></div>`:'';
+  return`<div class="final-box">
+<div class="final-icon">✦</div>
+<div>
+  <div class="eyebrow er">Tudo recebido</div>
+  <h2 style="font-family:'Cormorant Garamond',serif;font-size:clamp(22px,5vw,30px);font-style:italic">${S.nome}, você já começou.</h2>
+  <div class="lead" style="margin-top:12px">Tudo o que você compartilhou chega comigo com atenção. Cada resposta me ajuda a te acompanhar com mais presença.</div>
+</div>
+${deltaBox}
+<div class="pills">${motPills}${tmpPill}${intPills}</div>
+<div class="divider" style="width:100%">agende sua sessão</div>
+${wa()}
+</div>`;}
+
+// INIT
+render();
+</script>
+</body>
+</html>
